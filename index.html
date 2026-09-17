@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Çanakkale Akıllı Ulaşım Asistanı</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-blue-600 text-white shadow-md py-4 px-6">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold tracking-wide">🚌 Çanakkale Ulaşım</h1>
+            <span class="text-xs bg-blue-500 px-2.5 py-1 rounded-full font-medium">Merkez Sürüm</span>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-md w-full mx-auto p-4 flex-grow space-y-6">
+
+        <!-- Arama / Rota Seçim Kartı -->
+        <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+            <h2 class="text-md font-semibold text-slate-700 flex items-center gap-2">
+                📍 Nereye gitmek istiyorsun?
+            </h2>
+            
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">NEREDESİN?</label>
+                    <select id="origin" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                        <option value="iskele">İskele Meydanı</option>
+                        <option value="kampus">Terzioğlu Kampüsü</option>
+                        <option value="carsi">Çarşı (Kolin / Truva Atı)</option>
+                        <option value="otogar">Çanakkale Otogar</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">NEREYE GİDECEKSİN?</label>
+                    <select id="destination" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                        <option value="kampus">Terzioğlu Kampüsü</option>
+                        <option value="iskele">İskele Meydanı</option>
+                        <option value="carsi">Çarşı (Kolin / Truva Atı)</option>
+                        <option value="otogar">Çanakkale Otogar</option>
+                    </select>
+                </div>
+
+                <button onclick="calculateRoute()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl transition-all shadow-sm shadow-blue-200">
+                    En Uygun Otobüsü Bul
+                </button>
+            </div>
+        </section>
+
+        <!-- Sonuç Alanı (Başlangıçta Gizli) -->
+        <section id="resultArea" class="hidden space-y-4">
+            <div class="bg-blue-50 border border-blue-100 p-5 rounded-2xl space-y-3">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <span class="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded" id="busLineBadge">Hat 3</span>
+                        <h3 class="text-lg font-bold text-slate-900 mt-1" id="busName">Kampüs - İskele Ekspres</h3>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-2xl font-extrabold text-blue-600" id="remainingStops">4</span>
+                        <p class="text-xs text-slate-500">durak kaldı</p>
+                    </div>
+                </div>
+
+                <hr class="border-blue-200/60">
+
+                <div class="flex justify-between text-sm">
+                    <div>
+                        <p class="text-xs text-slate-500">Tahmini Süre</p>
+                        <p class="font-semibold text-slate-700" id="estimatedTime">~12 dakika</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xs text-slate-500">Sonraki Sefer</p>
+                        <p class="font-semibold text-slate-700" id="nextBusTime">10 dakika sonra</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Canlı / Simüle Durak İlerleme Görseli -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 space-y-3">
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Güzergah Durumu</h4>
+                <div id="stopTimeline" class="space-y-3 relative pl-4 border-l-2 border-slate-200 text-sm">
+                    <!-- Dinamik olarak doldurulacak -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-4 text-xs text-slate-400">
+        Çanakkale Ulaşım Projesi &copy; 2026
+    </footer>
+
+    <!-- JavaScript Mantığı -->
+    <script>
+        // Örnek Veritabanı Simülasyonu
+        const routeData = {
+            "iskele-kampus": {
+                line: "Hat Ç-1",
+                name: "İskele Meydanı ➔ Terzioğlu Kampüsü",
+                stops: ["İskele Meydanı", "Çarşı", "Eski Devlet Hastanesi", "KYK Yurtlar", "Kampüs Girişi"],
+                remaining: 3,
+                time: "8 dk",
+                next: "5 dk sonra"
+            },
+            "kampus-iskele": {
+                line: "Hat Ç-1",
+                name: "Terzioğlu Kampüsü ➔ İskele Meydanı",
+                stops: ["Kampüs Girişi", "KYK Yurtlar", "Eski Devlet Hastanesi", "Çarşı", "İskele Meydanı"],
+                remaining: 4,
+                time: "10 dk",
+                next: "2 dk sonra"
+            },
+            "iskele-otogar": {
+                line: "Hat Ç-4",
+                name: "İskele Meydanı ➔ Çanakkale Otogar",
+                stops: ["İskele Meydanı", "Çarşı", "Kipa AVM", "Otogar"],
+                remaining: 3,
+                time: "15 dk",
+                next: "7 dk sonra"
+            },
+            "otogar-iskele": {
+                line: "Hat Ç-4",
+                name: "Çanakkale Otogar ➔ İskele Meydanı",
+                stops: ["Otogar", "Kipa AVM", "Çarşı", "İskele Meydanı"],
+                remaining: 2,
+                time: "12 dk",
+                next: "12 dk sonra"
+            }
+        };
+
+        function calculateRoute() {
+            const origin = document.getElementById("origin").value;
+            const destination = document.getElementById("destination").value;
+            const resultArea = document.getElementById("resultArea");
+
+            if (origin === destination) {
+                alert("Başlangıç ve varış noktası aynı olamaz!");
+                resultArea.classList.add("hidden");
+                return;
+            }
+
+            const key = `${origin}-${destination}`;
+            const data = routeData[key] || {
+                line: "Hat Ç-Genel",
+                name: "Merkez Aktarmalı Hat",
+                stops: ["Kalkış Noktası", "Ara Durak", "Varış Noktası"],
+                remaining: 2,
+                time: "10 dk",
+                next: "5 dk sonra"
+            };
+
+            // HTML Alanlarını Güncelle
+            document.getElementById("busLineBadge").innerText = data.line;
+            document.getElementById("busName").innerText = data.name;
+            document.getElementById("remainingStops").innerText = data.remaining;
+            document.getElementById("estimatedTime").innerText = "~" + data.time;
+            document.getElementById("nextBusTime").innerText = data.next;
+
+            // Zaman Çizelgesini (Timeline) Oluştur
+            const timelineEl = document.getElementById("stopTimeline");
+            timelineEl.innerHTML = "";
+            
+            data.stops.forEach((stop, index) => {
+                const isPassed = index < (data.stops.length - data.remaining);
+                const isCurrent = index === (data.stops.length - data.remaining);
+
+                let dotColor = "bg-slate-300";
+                let textColor = "text-slate-500";
+                
+                if (isPassed) {
+                    dotColor = "bg-slate-400";
+                    textColor = "text-slate-400 line-through";
+                } else if (isCurrent) {
+                    dotColor = "bg-blue-600 animate-pulse ring-4 ring-blue-100";
+                    textColor = "text-blue-900 font-bold";
+                }
+
+                timelineEl.innerHTML += `
+                    <div class="relative flex items-center space-x-3">
+                        <span class="absolute -left-[21px] w-3 h-3 rounded-full ${dotColor}"></span>
+                        <span class="${textColor}">${stop} ${isCurrent ? '📍 (Otobüs Burada)' : ''}</span>
+                    </div>
+                `;
+            });
+
+            // Sonuç alanını göster
+            resultArea.classList.remove("hidden");
+        }
+    </script>
+</body>
+</html>
