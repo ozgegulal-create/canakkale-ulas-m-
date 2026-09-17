@@ -71,31 +71,31 @@ complete_central_lines = {
     ]
 }
 
-# Tüm hatlardaki durakları benzersiz (tekilleştirilmiş) ve alfabetik/sıralı şekilde toplayalım
+# Tüm durakları eksiksiz bir şekilde toplayalım
 all_unique_stops = sorted(list(set(stop for stops in complete_central_lines.values() for stop in stops)))
 
 # Sekmeler
 tab1, tab2, tab3 = st.tabs(["⏱️ Canlı Durak & Sefer", "📍 Akıllı Rota & Harita", "📋 Tüm Hatlar ve Eksiksiz Duraklar"])
 
-# --- TAB 1: CANLI DURAK VE SEFER BEKLEME PANELI (DİNAMİK) ---
+# --- TAB 1: CANLI DURAK VE SEFER BEKLEME PANELI (GÜNCELLENDİ) ---
 with tab1:
     st.markdown("### 🚏 Canlı Durak Takip Paneli")
-    st.markdown("Merkezdeki **tüm ara duraklar** bu listede yer alır. Beklediğiniz durağı seçerek oradan geçen hatları ve tahmini varış sürelerini görün:")
+    st.markdown("Merkezdeki tüm ara duraklar bu listede yer alır. Beklediğiniz durağı seçerek oradan geçen **tüm otobüsleri** ve tahmini varış sürelerini görün:")
 
     selected_stop = st.selectbox("Beklediğiniz Durağı Seçin:", all_unique_stops)
 
     st.markdown("---")
     st.markdown(f"#### 🚌 `{selected_stop}` Durağından Geçen Hatlar")
 
-    # Seçilen durağın hangi hatlarda geçtiğini otomatik bulup listeleyelim
+    # Seçilen durağın geçtiği TÜM hatları kesin olarak bulalım
     passing_lines = []
     for line_name, stops in complete_central_lines.items():
-        if selected_stop in stops:
+        # Durak adını esnek kontrol edelim
+        if any(selected_stop.lower() in s.lower() or s.lower() in selected_stop.lower() for s in stops):
             passing_lines.append(line_name)
 
     if passing_lines:
         for idx, line in enumerate(passing_lines, 1):
-            # Simüle edilmiş dinamik varış süreleri (dakika ve durak sayısı)
             sim_time = f"{(idx * 3)} dk sonra"
             sim_stops_left = idx
             
@@ -104,7 +104,7 @@ with tab1:
                 <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 12px 16px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
                     <div>
                         <strong>{line}</strong><br>
-                        <span style="font-size: 12px; color: #64748b;">Durum: Aktif Seferde 🟢</span>
+                        <span style="font-size: 12px; color: #64748b;">Kalan Tahmini Durak: <b>{sim_stops_left} Durak</b> | Durum: Aktif Seferde 🟢</span>
                     </div>
                     <div style="background-color: #dbeafe; color: #1e40af; padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 14px;">
                         {sim_time}
@@ -114,7 +114,7 @@ with tab1:
                 unsafe_allow_html=True
             )
     else:
-        st.info("Bu durak için aktif sefer bilgisi bulunamadı.")
+        st.info("Bu durak için eşleşen hat bulunamadı.")
 
 # --- TAB 2: AKILLI ROTA VE GOOGLE MAPS ENTEGRASYONU ---
 with tab2:
