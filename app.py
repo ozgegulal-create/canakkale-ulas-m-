@@ -8,100 +8,88 @@ st.set_page_config(
 )
 
 # Başlık
-st.markdown("<h2 style='text-align: center; color: #2563eb;'>🚌 Çanakkale & Kepez Ulaşım Rehberi</h2>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #64748b; font-size: 13px;'>Kepez ve Merkez arası tüm hatlar, en yakın duraklar ve yürüyüş rotaları</p>", unsafe_allow_html=True)
+st.markdown("<h2 style='text-align: center; color: #2563eb;'>🚌 Çanakkale & Kepez Ulaşım Asistanı</h2>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #64748b; font-size: 13px;'>Nereden nereye gideceğinizi kendi kelimelerinizle yazın, en uygun rotayı ve durakları bulalım.</p>", unsafe_allow_html=True)
 
 st.divider()
 
 # Sekmeler
-tab1, tab2 = st.tabs(["📍 Kepez & Merkez Rota Bulucu", "📋 Tüm Hatlar Listesi"])
+tab1, tab2 = st.tabs(["📍 Serbest Rota Arama", "📋 Tüm Hatlar Listesi"])
 
-# --- TAB 1: ROTA BULUCU ---
+# --- TAB 1: SERBEST ARAMA VE ROTA BULUCU ---
 with tab1:
-    st.markdown("### Nereye gideceksiniz?")
+    st.markdown("### Rota Bilgisi")
     
-    # Kalkış Noktaları (Kepez ağırlıklı ve merkez duraklar)
-    origins = [
-        "Kepez Belediyesi / Merkez", 
-        "Kepez Sahil / Toki", 
-        "Terzioğlu Kampüsü (Ana Kapı)", 
-        "ÇOMÜ Araştırma Hastanesi", 
-        "İskele Meydanı",
-        "Çanakkale Otogar"
-    ]
-    
-    origin = st.selectbox("Neredesiniz? (Kalkış Noktası)", origins)
+    # Kullanıcının serbestçe metin girebileceği alanlar
+    origin_input = st.text_input("Nereden kalkacaksınız?", placeholder="Örn: Kepez Toki, İskele, Esenler...")
+    destination_input = st.text_input("Nereye gideceksiniz?", placeholder="Örn: Belediye binası, Araştırma Hastanesi, Çarşı...")
 
-    # Gitmek İstenen Özel Noktalar ve Kepez Bağlantıları
-    destinations_info = {
-        "Çanakkale Belediyesi (Merkez)": {
-            "nearest_stop": "İskele Meydanı",
-            "walk_time": "3 dakika (250m)",
-            "direction": "İskele'den sahile doğru yürüyerek belediye binasına ulaşabilirsiniz.",
-            "line": "Kepez - Merkez Minibüsleri / Ç-1 / Ç-3"
-        },
-        "Aynalı Çarşı": {
-            "nearest_stop": "Çarşı / Truva Atı",
-            "walk_time": "2 dakika (150m)",
-            "direction": "Çarşı durağında indikten sonra Saat Kulesi istikametine yürüyün.",
-            "line": "Kepez - Çarşı Hatları"
-        },
-        "ÇOMÜ Araştırma Hastanesi": {
-            "nearest_stop": "Hastane Önü Durağı",
-            "walk_time": "0 dakika (Kapıda İniş)",
-            "direction": "Doğrudan hastane önündeki durakta inebilirsiniz.",
-            "line": "ÇT-1 / Kepez-Hastane Direkt Hat"
-        },
-        "ÇOMÜ Terzioğlu Kampüsü": {
-            "nearest_stop": "Kampüs Ana Kapı",
-            "walk_time": "0 dakika (Kampüs İçi)",
-            "direction": "Ana kapıda inebilirsiniz.",
-            "line": "Kepez - Kampüs Hatları"
-        },
-        "17 Burda AVM": {
-            "nearest_stop": "17 Burda AVM Önü",
-            "walk_time": "0 dakika (Kapıda İniş)",
-            "direction": "AVM'nin önündeki durakta inebilirsiniz.",
-            "line": "Ç-3 / Kepez Ringleri"
-        },
-        "Kepez Sahil / Ev": {
-            "nearest_stop": "Kepez Merkez Durakları",
-            "walk_time": "2-5 dakika",
-            "direction": "Kepez içi hatlarla evinize en yakın noktaya ulaşabilirsiniz.",
-            "line": "Kepez İçi Hatlar"
-        }
-    }
-
-    destination_name = st.selectbox("Nereye varacaksınız? (Hedef Yer)", list(destinations_info.keys()))
-
-    if st.button("Ulaşım ve Yürüyüş Rotasını Göster", use_container_width=True):
-        target = destinations_info[destination_name]
-        
-        st.success(f"🎯 Hedef: **{destination_name}**")
-        
-        # Bilgi Kutuları
-        col1, col2 = st.columns(2)
-        with col1:
-            st.metric(label="Önerilen En Yakın Durak", value=target["nearest_stop"])
-        with col2:
-            st.metric(label="Sonrası Yürüyüş", value=target["walk_time"])
+    if st.button("Rotayı ve Durakları Hesapla", use_container_width=True):
+        if not origin_input or not destination_input:
+            st.warning("⚠️ Lütfen hem nereden hem nereye gideceğinizi yazın!")
+        else:
+            # Aramayı küçük harfe çevirerek akıllı eşleştirme yapalım
+            dest_lower = destination_input.lower()
+            orig_lower = origin_input.lower()
             
-        st.info(f"🚌 Binmeniz Gereken Hat: **{target['line']}**")
-        
-        st.markdown("#### 🚶‍♂️ Yürüyüş ve Rota Rehberi")
-        st.markdown(f"> {target['direction']}")
-        
-        st.markdown("#### 📍 Güzergah Özeti")
-        st.markdown(f"- 🟢 Kalkış: **{origin}**")
-        st.markdown(f"- 🔵 İneceğiniz Yer: **{target['nearest_stop']}**")
-        st.markdown(f"- 🎯 Son Nokta: **{destination_name}**")
+            # Varsayılan akıllı yönlendirme şablonu
+            nearest_stop = "İskele Meydanı / Merkez Duraklar"
+            walk_time = "3-5 dakika"
+            direction = f"'{origin_input}' bölgesinden hareket eden hatlarla merkeze ulaştıktan sonra kısa bir yürüyüşle varabilirsiniz."
+            line_suggestion = "Kepez - Merkez Hatları / Ç-1 / Ç-3"
+            
+            # Özel nokta eşleştirmeleri (Annenlerin veya kullanıcıların sık arayabileceği yerler)
+            if "belediye" in dest_lower:
+                nearest_stop = "İskele Meydanı"
+                walk_time = "3 dakika (250m)"
+                direction = "İskele durağında indikten sonra sahil boyunca yürüyerek belediye binasına ulaşabilirsiniz."
+                line_suggestion = "Kepez - Merkez Sahil Hattı"
+            elif "hastane" in dest_lower:
+                nearest_stop = "ÇOMÜ Araştırma Hastanesi Önü"
+                walk_time = "0 dakika (Kapıda İniş)"
+                direction = "Doğrudan hastane kapısının önündeki durakta inebilirsiniz."
+                line_suggestion = "Kepez - Üniversite / Hastane Direkt Hattı"
+            elif "çarşı" in dest_lower or "aynalı" in dest_lower:
+                nearest_stop = "Çarşı / Truva Atı Durağı"
+                walk_time = "2 dakika (150m)"
+                direction = "Çarşı durağında inip Saat Kulesi yönüne yürüyebilirsiniz."
+                line_suggestion = "Kepez - Çarşı Hatları (Ç-4)"
+            elif "kampüs" in dest_lower or "üniversite" in dest_lower:
+                nearest_stop = "Terzioğlu Kampüsü Ana Kapı"
+                walk_time = "0 dakika (Kampüs İçi)"
+                direction = "Kampüs girişinde inebilirsiniz."
+                line_suggestion = "Kepez - Kampüs Direkt Hatları"
+            elif "avm" in dest_lower or "17 burda" in dest_lower:
+                nearest_stop = "17 Burda AVM Önü"
+                walk_time = "0 dakika (Kapıda İniş)"
+                direction = "AVM'nin önündeki durakta inebilirsiniz."
+                line_suggestion = "Ç-3 / Kepez Ringleri"
 
-# --- TAB 2: TÜM HATLAR LİSTESİ (KEPEZ DAHİL) ---
+            st.success(f"🎯 Hedef: **{destination_input.title()}**")
+            
+            # Bilgi Kartları
+            col1, col2 = st.columns(2)
+            with col1:
+                st.metric(label="Önerilen En Yakın Durak", value=nearest_stop)
+            with col2:
+                st.metric(label="Sonrası Yürüyüş", value=walk_time)
+                
+            st.info(f"🚌 Binmeniz Gereken Hat: **{line_suggestion}**")
+            
+            st.markdown("#### 🚶‍♂️ Yol Tarifi ve Yürüyüş Rehberi")
+            st.markdown(f"> {direction}")
+            
+            st.markdown("#### 📍 Yolculuk Özeti")
+            st.markdown(f"- 🟢 Kalkış: **{origin_input.title()}**")
+            st.markdown(f"- 🔵 İneceğiniz Durak: **{nearest_stop}**")
+            st.markdown(f"- 🎯 Varmak İstediğiniz Yer: **{destination_input.title()}**")
+
+# --- TAB 2: TÜM HATLAR LİSTESİ ---
 with tab2:
     st.markdown("### 📋 Kepez ve Merkez Hat Listesi")
     
     lines_info = {
-        "Kepez - Merkez (Sahil Yolu)": "Kepez Belde Kafe - Hamidiye - İskele Meydanı (Annenlerin en sık kullanacağı hat)",
+        "Kepez - Merkez (Sahil Yolu)": "Kepez Belde Kafe - Hamidiye - İskele Meydanı (Kepez'den merkeze en direkt hat)",
         "Kepez - Üniversite / Hastane": "Kepez - Troya Caddesi - Terzioğlu Kampüsü - Araştırma Hastanesi",
         "Ç-1 / Ç-2 (Mavi Hat)": "Esenler - Terzioğlu Kampüsü - İskele - Gazi Meclisi",
         "Ç-3 (Kırmızı Hat)": "Esenler - Terzioğlu Kampüsü - İskele - 17 Burda AVM",
@@ -112,7 +100,7 @@ with tab2:
     for line_code, desc in lines_info.items():
         with st.expander(line_code):
             st.write(f"**Güzergah Özeti:** {desc}")
-            st.write("Durum: Aktif Seferde ✅")
+            st.write("Status: Aktif Seferde ✅")
 
 st.divider()
 st.markdown("<p style='text-align: center; color: #94a3b8; font-size: 11px;'>Çanakkale & Kepez Toplu Taşıma Bilgi Ağı</p>", unsafe_allow_html=True)
