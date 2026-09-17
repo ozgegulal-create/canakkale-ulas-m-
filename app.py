@@ -10,111 +10,111 @@ st.set_page_config(
 
 # Başlık
 st.markdown("<h2 style='text-align: center; color: #2563eb;'>🚌 Çanakkale Merkez Ulaşım Asistanı</h2>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #64748b; font-size: 13px;'>Eksiksiz durak listeleri, canlı bekleme paneli ve Google Maps yürüyüş rotaları</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #64748b; font-size: 13px;'>Tüm ara durakları kapsayan canlı sefer paneli ve Google Maps rotaları</p>", unsafe_allow_html=True)
 
 st.divider()
+
+# --- TÜM HATLAR VE EKSİKSİZ ARA DURAKLAR (ANA VERİTABANI) ---
+complete_central_lines = {
+    "Ç-1 Mavi Hat (Esenler - Atatürk - Demircioğlu - Çarşı - İskele - Kampüs)": [
+        "Esenler Mahallesi (Son Durak)", "Nazım Hikmet Parkı", "Ahmet Piriştina Caddesi",
+        "Atatürk Caddesi", "100. Yıl Caddesi", "Demircioğlu Caddesi", "Eski Garaj",
+        "Çarşı", "İskele Meydanı", "Eski Devlet Hastanesi", "Öğretmenevi",
+        "KYK Yurtlar", "ÇOMÜ Terzioğlu Kampüsü (Ana Kapı)"
+    ],
+    "Ç-2 Mavi Hat (Kampüs - İskele - Çarşı - Demircioğlu - Esenler)": [
+        "ÇOMÜ Terzioğlu Kampüsü (Ana Kapı)", "KYK Yurtlar", "Öğretmenevi",
+        "Eski Devlet Hastanesi", "İskele Meydanı", "Çarşı", "Eski Garaj",
+        "Demircioğlu Caddesi", "100. Yıl Caddesi", "Atatürk Caddesi",
+        "Nazım Hikmet Parkı", "Esenler Mahallesi (Son Durak)"
+    ],
+    "Ç-3 Kırmızı Hat (Esenler - Troya Cd. - 17 Burda AVM - SSK - İskele)": [
+        "Esenler Mahallesi", "İbrahim Bodur Anadolu Lisesi Arkası", "Troya Caddesi",
+        "17 Burda AVM", "SSK İstasyon", "Gazi Meclisi", "Lapsekililer Sokak",
+        "İskele Meydanı", "Çarşı"
+    ],
+    "Ç-4 Hattı (İskele - Çarşı - Demircioğlu - Salı Pazarı - Yeni Otogar)": [
+        "İskele Meydanı", "Çarşı", "Demircioğlu Caddesi", "Salı Pazarı",
+        "Pirireis Caddesi", "Eski Otogar Kavşağı", "Çanakkale Yeni Otogar"
+    ],
+    "Ç-5 Hattı (Yeni Otogar - Salı Pazarı - Çarşı - Devlet Hastanesi)": [
+        "Çanakkale Yeni Otogar", "Pirireis Caddesi", "Salı Pazarı", "Demircioğlu Caddesi",
+        "Çarşı", "İskele Meydanı", "Eski Devlet Hastanesi", "Yeni Devlet Hastanesi"
+    ],
+    "Ç-7 Hattı (Park 17 - Plaj Yolu - Barbaros - Esenler)": [
+        "Park 17 Evleri", "Star Life", "Plaj Yolu Caddesi", "Barbaros Mahallesi",
+        "Yeni Kordon Boyu", "Atatürk Caddesi", "Esenler Mahallesi"
+    ],
+    "Ç-8 Hattı (Nusrat Yurdu - Havaalanı - Troya Cd. - Kampüs)": [
+        "Nusrat Öğrenci Yurdu", "Havaalanı Kavşağı", "Mehmet Akif Ersoy Caddesi",
+        "Troya Caddesi", "17 Burda AVM Kavşağı", "ÇOMÜ Terzioğlu Kampüsü"
+    ],
+    "Ç-10 Hattı (Nusrat Yurdu - Demircioğlu - Çarşı - Kampüs)": [
+        "Nusrat Öğrenci Yurdu", "Kordon Boyu", "Demircioğlu Caddesi",
+        "Çarşı", "İskele Meydanı", "KYK Yurtlar", "ÇOMÜ Terzioğlu Kampüsü"
+    ],
+    "Ç-11 Hattı (Esenler - Gazi Cd. - Kordon - Hastane Ring)": [
+        "Esenler Mahallesi", "Gazi Caddesi", "Halk Bahçesi",
+        "İskele Meydanı (Kordon)", "Eski Devlet Hastanesi", "Yeni Devlet Hastanesi"
+    ],
+    "Ç960 (Park 17 - Hastane - İmam Hatip - Toki - AVM - Barbaros - Cuma Pazarı - Belediye)": [
+        "Park 17 Evleri", "Star Life Sitesi", "Oğuzkent", "Bahçeşehir Sitesi",
+        "Medigarden", "Çanakkale Devlet Hastanesi (Yeni)", "İmam Hatip Lisesi",
+        "960 Askeri Lojmanlar", "Rauf Denktaş Caddesi", "960 TOKİ Konutları",
+        "17 Burda AVM", "Barbaros Mahallesi", "Yeni Kordon", "İbrahim Bodur Lisesi",
+        "Cuma Pazarı", "Belediye / İskele Meydanı", "Nusrat Yurdu Son Durak"
+    ],
+    "ÇT-1 / ÇT-3 Hattı (Araştırma Hastanesi - Adliye - Kampüs - Troya - İskele)": [
+        "ÇOMÜ Araştırma Hastanesi", "Yeni Adliye", "Teknik Bilimler MYO",
+        "ÇOMÜ Terzioğlu Kampüsü (İç Kampüs Durakları)", "Troya Caddesi",
+        "17 Burda AVM Önü", "Gazi Meclisi", "İskele Meydanı"
+    ]
+}
+
+# Tüm hatlardaki durakları benzersiz (tekilleştirilmiş) ve alfabetik/sıralı şekilde toplayalım
+all_unique_stops = sorted(list(set(stop for stops in complete_central_lines.values() for stop in stops)))
 
 # Sekmeler
 tab1, tab2, tab3 = st.tabs(["⏱️ Canlı Durak & Sefer", "📍 Akıllı Rota & Harita", "📋 Tüm Hatlar ve Eksiksiz Duraklar"])
 
-# --- TAB 1: CANLI DURAK VE SEFER BEKLEME PANELI ---
+# --- TAB 1: CANLI DURAK VE SEFER BEKLEME PANELI (DİNAMİK) ---
 with tab1:
-    st.markdown("### 🚏 Durakta Bekleme ve Sefer Takibi")
-    st.markdown("Bulunduğunuz durağı seçerek yaklaşan otobüsleri ve tahmini varış sürelerini görün:")
+    st.markdown("### 🚏 Canlı Durak Takip Paneli")
+    st.markdown("Merkezdeki **tüm ara duraklar** bu listede yer alır. Beklediğiniz durağı seçerek oradan geçen hatları ve tahmini varış sürelerini görün:")
 
-    popular_stops = [
-        "İskele Meydanı",
-        "Çarşı / Truva Atı",
-        "Demircioğlu Caddesi",
-        "Eski Devlet Hastanesi",
-        "ÇOMÜ Terzioğlu Kampüsü (Ana Kapı)",
-        "ÇOMÜ Araştırma Hastanesi",
-        "17 Burda AVM",
-        "Esenler Mahallesi (Son Durak)",
-        "Çanakkale Yeni Otogar",
-        "Park 17 Evleri / 960 Toki",
-        "Barbaros Mahallesi / Yeni Kordon"
-    ]
-
-    selected_stop = st.selectbox("Beklediğiniz Durağı Seçin:", popular_stops)
+    selected_stop = st.selectbox("Beklediğiniz Durağı Seçin:", all_unique_stops)
 
     st.markdown("---")
-    st.markdown(f"#### 🚌 `{selected_stop}` Durağına Yaklaşan Hatlar")
+    st.markdown(f"#### 🚌 `{selected_stop}` Durağından Geçen Hatlar")
 
-    stop_live_data = {
-        "İskele Meydanı": [
-            {"line": "Ç-1 Mavi Hat (Kampüs)", "time": "3 dk sonra", "stops_left": 1, "status": "Yaklaşıyor 🟢"},
-            {"line": "Ç-3 Kırmızı Hat (Esenler)", "time": "7 dk sonra", "stops_left": 3, "status": "Normal 🔵"},
-            {"line": "Ç-4 (Yeni Otogar)", "time": "12 dk sonra", "stops_left": 5, "status": "Yolda 🔵"},
-            {"line": "Ç960 (Nusrat Yurdu)", "time": "15 dk sonra", "stops_left": 6, "status": "Normal 🔵"}
-        ],
-        "Çarşı / Truva Atı": [
-            {"line": "Ç-1 Mavi Hat (Kampüs)", "time": "2 dk sonra", "stops_left": 1, "status": "Yaklaşıyor 🟢"},
-            {"line": "Ç-3 Kırmızı Hat (AVM)", "time": "5 dk sonra", "stops_left": 2, "status": "Normal 🔵"},
-            {"line": "Ç-10 (Kampüs Ring)", "time": "9 dk sonra", "stops_left": 4, "status": "Yolda 🔵"}
-        ],
-        "Demircioğlu Caddesi": [
-            {"line": "Ç-1 Mavi Hat (Esenler)", "time": "4 dk sonra", "stops_left": 2, "status": "Normal 🔵"},
-            {"line": "Ç-4 (Otogar)", "time": "6 dk sonra", "stops_left": 3, "status": "Normal 🔵"},
-            {"line": "Ç-10 (Nusrat Yurdu)", "time": "11 dk sonra", "stops_left": 5, "status": "Yolda 🔵"}
-        ],
-        "Eski Devlet Hastanesi": [
-            {"line": "Ç-1 Mavi Hat (Kampüs)", "time": "5 dk sonra", "stops_left": 2, "status": "Normal 🔵"},
-            {"line": "Ç-2 Mavi Hat (İskele)", "time": "8 dk sonra", "stops_left": 3, "status": "Normal 🔵"},
-            {"line": "Ç-11 (Kordon-Hastane)", "time": "14 dk sonra", "stops_left": 6, "status": "Yolda 🔵"}
-        ],
-        "ÇOMÜ Terzioğlu Kampüsü (Ana Kapı)": [
-            {"line": "Ç-1 Mavi Hat (İskele/Esenler)", "time": "2 dk sonra", "stops_left": 1, "status": "Yaklaşıyor 🟢"},
-            {"line": "Ç-3 Kırmızı Hat (AVM)", "time": "6 dk sonra", "stops_left": 3, "status": "Normal 🔵"},
-            {"line": "ÇT-1 (Araştırma Hastanesi)", "time": "10 dk sonra", "stops_left": 4, "status": "Yolda 🔵"},
-            {"line": "Ç-8 (Nusrat Yurdu)", "time": "15 dk sonra", "stops_left": 7, "status": "Normal 🔵"}
-        ],
-        "ÇOMÜ Araştırma Hastanesi": [
-            {"line": "ÇT-1 / ÇT-3 (Kampüs-İskele)", "time": "4 dk sonra", "stops_left": 1, "status": "Yaklaşıyor 🟢"},
-            {"line": "Ç960 (Park 17)", "time": "10 dk sonra", "stops_left": 4, "status": "Normal 🔵"}
-        ],
-        "17 Burda AVM": [
-            {"line": "Ç-3 Kırmızı Hat", "time": "3 dk sonra", "stops_left": 1, "status": "Yaklaşıyor 🟢"},
-            {"line": "Ç960", "time": "8 dk sonra", "stops_left": 3, "status": "Normal 🔵"},
-            {"line": "ÇT-3 (Kampüs)", "time": "12 dk sonra", "stops_left": 5, "status": "Yolda 🔵"}
-        ],
-        "Esenler Mahallesi (Son Durak)": [
-            {"line": "Ç-1 Mavi Hat (Kampüs)", "time": "1 dk sonra", "stops_left": 0, "status": "Kalkış Noktasında 🟢"},
-            {"line": "Ç-3 Kırmızı Hat (AVM)", "time": "7 dk sonra", "stops_left": 2, "status": "Normal 🔵"}
-        ],
-        "Çanakkale Yeni Otogar": [
-            {"line": "Ç-4 (İskele Meydanı)", "time": "5 dk sonra", "stops_left": 1, "status": "Yaklaşıyor 🟢"},
-            {"line": "Ç-5 (Devlet Hastanesi)", "time": "12 dk sonra", "stops_left": 4, "status": "Yolda 🔵"}
-        ],
-        "Park 17 Evleri / 960 Toki": [
-            {"line": "Ç960 (Merkez-Belediye)", "time": "4 dk sonra", "stops_left": 1, "status": "Yaklaşıyor 🟢"},
-            {"line": "Ç-7 (Plaj Yolu-Barbaros)", "time": "9 dk sonra", "stops_left": 3, "status": "Normal 🔵"}
-        ],
-        "Barbaros Mahallesi / Yeni Kordon": [
-            {"line": "Ç-7 (Esenler)", "time": "3 dk sonra", "stops_left": 1, "status": "Yaklaşıyor 🟢"},
-            {"line": "Ç960", "time": "7 dk sonra", "stops_left": 2, "status": "Normal 🔵"}
-        ]
-    }
+    # Seçilen durağın hangi hatlarda geçtiğini otomatik bulup listeleyelim
+    passing_lines = []
+    for line_name, stops in complete_central_lines.items():
+        if selected_stop in stops:
+            passing_lines.append(line_name)
 
-    current_buses = stop_live_data.get(selected_stop, [
-        {"line": "Merkez Hatları", "time": "5-10 dk sonra", "stops_left": 2, "status": "Normal 🔵"}
-    ])
-
-    for bus in current_buses:
-        st.markdown(
-            f"""
-            <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 12px 16px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <strong>{bus['line']}</strong><br>
-                    <span style="font-size: 12px; color: #64748b;">Kalan Durak: <b>{bus['stops_left']} Durak</b> | Durum: {bus['status']}</span>
+    if passing_lines:
+        for idx, line in enumerate(passing_lines, 1):
+            # Simüle edilmiş dinamik varış süreleri (dakika ve durak sayısı)
+            sim_time = f"{(idx * 3)} dk sonra"
+            sim_stops_left = idx
+            
+            st.markdown(
+                f"""
+                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 12px 16px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong>{line}</strong><br>
+                        <span style="font-size: 12px; color: #64748b;">Durum: Aktif Seferde 🟢</span>
+                    </div>
+                    <div style="background-color: #dbeafe; color: #1e40af; padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 14px;">
+                        {sim_time}
+                    </div>
                 </div>
-                <div style="background-color: #dbeafe; color: #1e40af; padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 14px;">
-                    {bus['time']}
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+                """,
+                unsafe_allow_html=True
+            )
+    else:
+        st.info("Bu durak için aktif sefer bilgisi bulunamadı.")
 
 # --- TAB 2: AKILLI ROTA VE GOOGLE MAPS ENTEGRASYONU ---
 with tab2:
@@ -181,132 +181,6 @@ with tab2:
 with tab3:
     st.markdown("### 📋 Çanakkale Merkez Tüm Hatlar ve Eksiksiz Durak Listesi")
     st.markdown("Çanakkale merkezde hizmet veren tüm otobüs hatlarının başlangıçtan bitişe tüm ara durakları:")
-
-    # Tüm hatların eksiksiz ve detaylı durak listeleri
-    complete_central_lines = {
-        "Ç-1 Mavi Hat (Esenler - Atatürk - Demircioğlu - Çarşı - İskele - Kampüs)": [
-            "Esenler Mahallesi (Son Durak)",
-            "Nazım Hikmet Parkı",
-            "Ahmet Piriştina Caddesi",
-            "Atatürk Caddesi",
-            "100. Yıl Caddesi",
-            "Demircioğlu Caddesi",
-            "Eski Garaj",
-            "Çarşı",
-            "İskele Meydanı",
-            "Eski Devlet Hastanesi",
-            "Öğretmenevi",
-            "KYK Yurtlar",
-            "ÇOMÜ Terzioğlu Kampüsü (Ana Kapı)"
-        ],
-        "Ç-2 Mavi Hat (Kampüs - İskele - Çarşı - Demircioğlu - Esenler)": [
-            "ÇOMÜ Terzioğlu Kampüsü (Ana Kapı)",
-            "KYK Yurtlar",
-            "Öğretmenevi",
-            "Eski Devlet Hastanesi",
-            "İskele Meydanı",
-            "Çarşı",
-            "Eski Garaj",
-            "Demircioğlu Caddesi",
-            "100. Yıl Caddesi",
-            "Atatürk Caddesi",
-            "Nazım Hikmet Parkı",
-            "Esenler Mahallesi (Son Durak)"
-        ],
-        "Ç-3 Kırmızı Hat (Esenler - Troya Cd. - 17 Burda AVM - SSK - İskele)": [
-            "Esenler Mahallesi",
-            "İbrahim Bodur Anadolu Lisesi Arkası",
-            "Troya Caddesi",
-            "17 Burda AVM",
-            "SSK İstasyon",
-            "Gazi Meclisi",
-            "Lapsekililer Sokak",
-            "İskele Meydanı",
-            "Çarşı"
-        ],
-        "Ç-4 Hattı (İskele - Çarşı - Demircioğlu - Salı Pazarı - Yeni Otogar)": [
-            "İskele Meydanı",
-            "Çarşı",
-            "Demircioğlu Caddesi",
-            "Salı Pazarı",
-            "Pirireis Caddesi",
-            "Eski Otogar Kavşağı",
-            "Çanakkale Yeni Otogar"
-        ],
-        "Ç-5 Hattı (Yeni Otogar - Salı Pazarı - Çarşı - Devlet Hastanesi)": [
-            "Çanakkale Yeni Otogar",
-            "Pirireis Caddesi",
-            "Salı Pazarı",
-            "Demircioğlu Caddesi",
-            "Çarşı",
-            "İskele Meydanı",
-            "Eski Devlet Hastanesi",
-            "Yeni Devlet Hastanesi"
-        ],
-        "Ç-7 Hattı (Park 17 - Plaj Yolu - Barbaros - Esenler)": [
-            "Park 17 Evleri",
-            "Star Life",
-            "Plaj Yolu Caddesi",
-            "Barbaros Mahallesi",
-            "Yeni Kordon Boyu",
-            "Atatürk Caddesi",
-            "Esenler Mahallesi"
-        ],
-        "Ç-8 Hattı (Nusrat Yurdu - Havaalanı - Troya Cd. - Kampüs)": [
-            "Nusrat Öğrenci Yurdu",
-            "Havaalanı Kavşağı",
-            "Mehmet Akif Ersoy Caddesi",
-            "Troya Caddesi",
-            "17 Burda AVM Kavşağı",
-            "ÇOMÜ Terzioğlu Kampüsü"
-        ],
-        "Ç-10 Hattı (Nusrat Yurdu - Demircioğlu - Çarşı - Kampüs)": [
-            "Nusrat Öğrenci Yurdu",
-            "Kordon Boyu",
-            "Demircioğlu Caddesi",
-            "Çarşı",
-            "İskele Meydanı",
-            "KYK Yurtlar",
-            "ÇOMÜ Terzioğlu Kampüsü"
-        ],
-        "Ç-11 Hattı (Esenler - Gazi Cd. - Kordon - Hastane Ring)": [
-            "Esenler Mahallesi",
-            "Gazi Caddesi",
-            "Halk Bahçesi",
-            "İskele Meydanı (Kordon)",
-            "Eski Devlet Hastanesi",
-            "Yeni Devlet Hastanesi"
-        ],
-        "Ç960 (Park 17 - Hastane - İmam Hatip - Toki - AVM - Barbaros - Cuma Pazarı - Belediye)": [
-            "Park 17 Evleri",
-            "Star Life Sitesi",
-            "Oğuzkent",
-            "Bahçeşehir Sitesi",
-            "Medigarden",
-            "Çanakkale Devlet Hastanesi (Yeni)",
-            "İmam Hatip Lisesi",
-            "960 Askeri Lojmanlar",
-            "Rauf Denktaş Caddesi",
-            "960 TOKİ Konutları",
-            "17 Burda AVM",
-            "Barbaros Mahallesi",
-            "Yeni Kordon",
-            "İbrahim Bodur Lisesi",
-            "Cuma Pazarı",
-            "Belediye / İskele Meydanı",
-            "Nusrat Yurdu Son Durak"
-        ],
-        "ÇT-1 / ÇT-3 Hattı (Araştırma Hastanesi - Adliye - Kampüs - Troya - İskele)": [
-            "ÇOMÜ Araştırma Hastanesi",
-            "Yeni Adliye",
-            "Teknik Bilimler MYO",
-            "ÇOMÜ Terzioğlu Kampüsü (İç Kampüs Durakları)",
-            "Troya Caddesi",
-            "17 Burda AVM Önü",
-            "Gazi Meclisi",
-            "İskele Meydanı"
-        ]
-    }
 
     for line_name, stops in complete_central_lines.items():
         with st.expander(line_name):
