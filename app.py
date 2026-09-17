@@ -44,7 +44,7 @@ with tab1:
     selected_stop = st.selectbox("Durak Seçin:", all_stops)
 
     st.markdown("---")
-    st.markdown(f"#### 🚌 `{selected_stop}` Durağından Geçen Hatlar")
+    st.markdown(f"#### 🚌 {selected_stop} Durağından Geçen Hatlar")
 
     active_lines = official_transport_data.get(selected_stop, ["Ç-1", "Ç-3"])
 
@@ -120,7 +120,8 @@ with tab3:
 
     for stop_name, lines in official_transport_data.items():
         with st.expander(f"🚏 {stop_name}"):
-            st.markdown(**Geçen Hatlar:** " + ", ".join([f"`{l}`" for l in lines]))
+            line_str = ", ".join([f"`{l}`" for l in lines])
+            st.markdown(f"**Geçen Hatlar:** {line_str}")
 
 st.divider()
 st.markdown("<p style='text-align: center; color: #94a3b8; font-size: 11px;'>Çanakkale Kentkart / Ulaşım Altyapı Entegrasyonu</p>", unsafe_allow_html=True)
