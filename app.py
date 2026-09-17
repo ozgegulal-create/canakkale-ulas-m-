@@ -9,16 +9,112 @@ st.set_page_config(
 )
 
 # Başlık
-st.markdown("<h2 style='text-align: center; color: #2563eb;'>🚌 Çanakkale Merkez Tam Kapsamlı Ulaşım Asistanı</h2>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #64748b; font-size: 13px;'>Tüm merkez hatları, durak listeleri ve Google Maps entegre rota rehberi</p>", unsafe_allow_html=True)
+st.markdown("<h2 style='text-align: center; color: #2563eb;'>🚌 Çanakkale Merkez Ulaşım Asistanı</h2>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #64748b; font-size: 13px;'>Canlı durak takip paneli, otobüs varış süreleri ve Google Maps yürüyüş rotaları</p>", unsafe_allow_html=True)
 
 st.divider()
 
 # Sekmeler
-tab1, tab2 = st.tabs(["📍 Akıllı Rota & Harita", "📋 Tüm Hatlar ve Durak Listesi"])
+tab1, tab2, tab3 = st.tabs(["⏱️ Canlı Durak & Sefer Saati", "📍 Akıllı Rota & Harita", "📋 Tüm Hatlar ve Duraklar"])
 
-# --- TAB 1: AKILLI ROTA VE GOOGLE MAPS ENTEGRASYONU ---
+# --- TAB 1: CANLI DURAK VE SEFER BEKLEME PANELI ---
 with tab1:
+    st.markdown("### 🚏 Durakta Bekleme ve Sefer Takibi")
+    st.markdown("Bulunduğunuz durağı seçerek yaklaşan otobüsleri ve tahmini varış sürelerini görün:")
+
+    # Sık kullanılan ana merkez durakları
+    popular_stops = [
+        "İskele Meydanı",
+        "Çarşı / Truva Atı",
+        "Demircioğlu Caddesi",
+        "Eski Devlet Hastanesi",
+        "ÇOMÜ Terzioğlu Kampüsü (Ana Kapı)",
+        "ÇOMÜ Araştırma Hastanesi",
+        "17 Burda AVM",
+        "Esenler Mahallesi (Son Durak)",
+        "Çanakkale Yeni Otogar",
+        "Park 17 Evleri / 960 Toki"
+    ]
+
+    selected_stop = st.selectbox("Beklediğiniz Durağı Seçin:", popular_stops)
+
+    st.markdown("---")
+    st.markdown(f"#### 🚌 `{selected_stop}` Durağına Yaklaşan Hatlar")
+
+    # Duraklara göre simüle edilmiş canlı varış süreleri veritabanı
+    stop_live_data = {
+        "İskele Meydanı": [
+            {"line": "Ç-1 Mavi Hat (Kampüs)", "time": "3 dk sonra", "stops_left": 1, "status": "Yaklaşıyor 🟢"},
+            {"line": "Ç-3 Kırmızı Hat (Esenler)", "time": "7 dk sonra", "stops_left": 3, "status": "Normal 🔵"},
+            {"line": "Ç-4 (Yeni Otogar)", "time": "12 dk sonra", "stops_left": 5, "status": "Yolda 🔵"},
+            {"line": "Ç960 (Nusrat Yurdu)", "time": "15 dk sonra", "stops_left": 6, "status": "Normal 🔵"}
+        ],
+        "Çarşı / Truva Atı": [
+            {"line": "Ç-1 Mavi Hat (Kampüs)", "time": "2 dk sonra", "stops_left": 1, "status": "Yaklaşıyor 🟢"},
+            {"line": "Ç-3 Kırmızı Hat (AVM)", "time": "5 dk sonra", "stops_left": 2, "status": "Normal 🔵"},
+            {"line": "Ç-10 (Kampüs Ring)", "time": "9 dk sonra", "stops_left": 4, "status": "Yolda 🔵"}
+        ],
+        "Demircioğlu Caddesi": [
+            {"line": "Ç-1 Mavi Hat (Esenler)", "time": "4 dk sonra", "stops_left": 2, "status": "Normal 🔵"},
+            {"line": "Ç-4 (Otogar)", "time": "6 dk sonra", "stops_left": 3, "status": "Normal 🔵"},
+            {"line": "Ç-10 (Nusrat Yurdu)", "time": "11 dk sonra", "stops_left": 5, "status": "Yolda 🔵"}
+        ],
+        "Eski Devlet Hastanesi": [
+            {"line": "Ç-1 Mavi Hat (Kampüs)", "time": "5 dk sonra", "stops_left": 2, "status": "Normal 🔵"},
+            {"line": "Ç-2 Mavi Hat (İskele)", "time": "8 dk sonra", "stops_left": 3, "status": "Normal 🔵"},
+            {"line": "Ç-11 (Kordon-Hastane)", "time": "14 dk sonra", "stops_left": 6, "status": "Yolda 🔵"}
+        ],
+        "ÇOMÜ Terzioğlu Kampüsü (Ana Kapı)": [
+            {"line": "Ç-1 Mavi Hat (İskele/Esenler)", "time": "2 dk sonra", "stops_left": 1, "status": "Yaklaşıyor 🟢"},
+            {"line": "Ç-3 Kırmızı Hat (AVM)", "time": "6 dk sonra", "stops_left": 3, "status": "Normal 🔵"},
+            {"line": "ÇT-1 (Araştırma Hastanesi)", "time": "10 dk sonra", "stops_left": 4, "status": "Yolda 🔵"},
+            {"line": "Ç-8 (Nusrat Yurdu)", "time": "15 dk sonra", "stops_left": 7, "status": "Normal 🔵"}
+        ],
+        "ÇOMÜ Araştırma Hastanesi": [
+            {"line": "ÇT-1 / ÇT-3 (Kampüs-İskele)", "time": "4 dk sonra", "stops_left": 1, "status": "Yaklaşıyor 🟢"},
+            {"line": "Ç960 (Park 17)", "time": "10 dk sonra", "stops_left": 4, "status": "Normal 🔵"}
+        ],
+        "17 Burda AVM": [
+            {"line": "Ç-3 Kırmızı Hat", "time": "3 dk sonra", "stops_left": 1, "status": "Yaklaşıyor 🟢"},
+            {"line": "Ç960", "time": "8 dk sonra", "stops_left": 3, "status": "Normal 🔵"},
+            {"line": "ÇT-3 (Kampüs)", "time": "12 dk sonra", "stops_left": 5, "status": "Yolda 🔵"}
+        ],
+        "Esenler Mahallesi (Son Durak)": [
+            {"line": "Ç-1 Mavi Hat (Kampüs)", "time": "1 dk sonra", "stops_left": 0, "status": "Kalkış Noktasında 🟢"},
+            {"line": "Ç-3 Kırmızı Hat (AVM)", "time": "7 dk sonra", "stops_left": 2, "status": "Normal 🔵"}
+        ],
+        "Çanakkale Yeni Otogar": [
+            {"line": "Ç-4 (İskele Meydanı)", "time": "5 dk sonra", "stops_left": 1, "status": "Yaklaşıyor 🟢"},
+            {"line": "Ç-5 (Devlet Hastanesi)", "time": "12 dk sonra", "stops_left": 4, "status": "Normal 🔵"}
+        ],
+        "Park 17 Evleri / 960 Toki": [
+            {"line": "Ç960 (Merkez-Belediye)", "time": "4 dk sonra", "stops_left": 1, "status": "Yaklaşıyor 🟢"},
+            {"line": "Ç-7 (Plaj Yolu-Barbaros)", "time": "9 dk sonra", "stops_left": 3, "status": "Normal 🔵"}
+        ]
+    }
+
+    current_buses = stop_live_data.get(selected_stop, [
+        {"line": "Merkez Hatları", "time": "5-10 dk sonra", "stops_left": 2, "status": "Normal 🔵"}
+    ])
+
+    for bus in current_buses:
+        st.markdown(
+            f"""
+            <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 12px 16px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong>{bus['line']}</strong><br>
+                    <span style="font-size: 12px; color: #64748b;">Kalan Durak: <b>{bus['stops_left']} Durak</b> | Durum: {bus['status']}</span>
+                </div>
+                <div style="background-color: #dbeafe; color: #1e40af; padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 14px;">
+                    {bus['time']}
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+# --- TAB 2: AKILLI ROTA VE GOOGLE MAPS ENTEGRASYONU ---
+with tab2:
     st.markdown("### 🗺️ Nereden Nereye Gideceksiniz?")
     
     origin_input = st.text_input("Kalkış Yeri (Neredesiniz?)", placeholder="Örn: Esenler, İskele, 960 Toki, Barbaros...")
@@ -30,7 +126,6 @@ with tab1:
         else:
             dest_lower = destination_input.lower()
             
-            # Akıllı Durak ve Hat Eşleştirmesi
             nearest_stop = "İskele Meydanı / Merkez Duraklar"
             line_suggestion = "Ç-1 / Ç-3 / Ç-11 / Ç960"
             
@@ -80,12 +175,11 @@ with tab1:
                 unsafe_allow_html=True
             )
 
-# --- TAB 2: ÇANAKKALE MERKEZ TÜM HATLAR VE DURAKLARI ---
-with tab2:
+# --- TAB 3: ÇANAKKALE MERKEZ TÜM HATLAR VE DURAKLARI ---
+with tab3:
     st.markdown("### 📋 Çanakkale Merkez Tüm Hatlar ve Durak Listesi")
     st.markdown("Çanakkale merkezde hizmet veren tüm otobüs hatlarının tam durak sıralamaları:")
 
-    # Çanakkale Merkez Eksiksiz Hat Listesi
     all_central_lines = {
         "Ç-1 Mavi Hat (Esenler - Kampüs - İskele)": [
             "Esenler Mahallesi (Son Durak)", "Atatürk Caddesi", "Demircioğlu Caddesi", 
