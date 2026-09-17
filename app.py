@@ -2,146 +2,110 @@ import streamlit as st
 
 # Sayfa Yapılandırması
 st.set_page_config(
-    page_title="Çanakkale Ulaşım Rehberi",
+    page_title="Çanakkale & Kepez Ulaşım Asistanı",
     page_icon="🚌",
     layout="centered"
 )
 
 # Başlık
-st.markdown("<h2 style='text-align: center; color: #2563eb;'>🚌 Çanakkale Merkez Ulaşım Asistanı</h2>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #64748b; font-size: 13px;'>Tüm merkez hatları, kampüs seferleri ve durak takip sistemi</p>", unsafe_allow_html=True)
+st.markdown("<h2 style='text-align: center; color: #2563eb;'>🚌 Çanakkale & Kepez Ulaşım Rehberi</h2>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #64748b; font-size: 13px;'>Kepez ve Merkez arası tüm hatlar, en yakın duraklar ve yürüyüş rotaları</p>", unsafe_allow_html=True)
 
 st.divider()
 
-# Sekmeler: 1. Rota Bulucu (Nereye Nereden?), 2. Tüm Hatlar Rehberi
-tab1, tab2 = st.tabs(["📍 Rota Bulucu & Durak Takibi", "📋 Tüm Hatlar Listesi"])
+# Sekmeler
+tab1, tab2 = st.tabs(["📍 Kepez & Merkez Rota Bulucu", "📋 Tüm Hatlar Listesi"])
 
 # --- TAB 1: ROTA BULUCU ---
 with tab1:
-    st.markdown("### Nereye gitmek istiyorsun?")
+    st.markdown("### Nereye gideceksiniz?")
     
-    # Çanakkale Merkez Önemli Durak / Noktaları
-    locations = [
-        "İskele Meydanı", 
+    # Kalkış Noktaları (Kepez ağırlıklı ve merkez duraklar)
+    origins = [
+        "Kepez Belediyesi / Merkez", 
+        "Kepez Sahil / Toki", 
         "Terzioğlu Kampüsü (Ana Kapı)", 
         "ÇOMÜ Araştırma Hastanesi", 
-        "Çarşı / Truva Atı", 
-        "Çanakkale Otogar", 
-        "17 Burda AVM", 
-        "Esenler / Demircioğlu", 
-        "Nusrat Yurdu / KYK",
-        "Halk Bahçesi"
+        "İskele Meydanı",
+        "Çanakkale Otogar"
     ]
+    
+    origin = st.selectbox("Neredesiniz? (Kalkış Noktası)", origins)
 
-    col1, col2 = st.columns(2)
-    with col1:
-        origin = st.selectbox("Neredesin?", locations, index=0)
-    with col2:
-        destination = st.selectbox("Nereye gideceksin?", locations, index=1)
-
-    # Kapsamlı Rota Veritabanı Simülasyonu
-    routes_db = {
-        ("İskele Meydanı", "Terzioğlu Kampüsü (Ana Kapı)"): {
-            "line": "Ç-1 / Ç-3 (Mavi / Kırmızı)",
-            "name": "İskele ➔ Terzioğlu Kampüsü",
-            "stops": ["İskele Meydanı", "Çarşı", "Demircioğlu Caddesi", "Eski Devlet Hastanesi", "KYK Yurtlar", "Terzioğlu Kampüsü (Ana Kapı)"],
-            "remaining": 3,
-            "time": "12 dk",
-            "next": "3 dk sonra"
+    # Gitmek İstenen Özel Noktalar ve Kepez Bağlantıları
+    destinations_info = {
+        "Çanakkale Belediyesi (Merkez)": {
+            "nearest_stop": "İskele Meydanı",
+            "walk_time": "3 dakika (250m)",
+            "direction": "İskele'den sahile doğru yürüyerek belediye binasına ulaşabilirsiniz.",
+            "line": "Kepez - Merkez Minibüsleri / Ç-1 / Ç-3"
         },
-        ("Terzioğlu Kampüsü (Ana Kapı)", "İskele Meydanı"): {
-            "line": "Ç-1 / Ç-3 (Mavi / Kırmızı)",
-            "name": "Terzioğlu Kampüsü ➔ İskele",
-            "stops": ["Terzioğlu Kampüsü (Ana Kapı)", "KYK Yurtlar", "Eski Devlet Hastanesi", "Çarşı", "İskele Meydanı"],
-            "remaining": 2,
-            "time": "10 dk",
-            "next": "5 dk sonra"
+        "Aynalı Çarşı": {
+            "nearest_stop": "Çarşı / Truva Atı",
+            "walk_time": "2 dakika (150m)",
+            "direction": "Çarşı durağında indikten sonra Saat Kulesi istikametine yürüyün.",
+            "line": "Kepez - Çarşı Hatları"
         },
-        ("İskele Meydanı", "Çanakkale Otogar"): {
-            "line": "Ç-4 / Ç-9",
-            "name": "İskele ➔ Yeni Otogar",
-            "stops": ["İskele Meydanı", "Çarşı", "Dörtyol", "Pirireis Caddesi", "Çanakkale Otogar"],
-            "remaining": 4,
-            "time": "18 dk",
-            "next": "7 dk sonra"
+        "ÇOMÜ Araştırma Hastanesi": {
+            "nearest_stop": "Hastane Önü Durağı",
+            "walk_time": "0 dakika (Kapıda İniş)",
+            "direction": "Doğrudan hastane önündeki durakta inebilirsiniz.",
+            "line": "ÇT-1 / Kepez-Hastane Direkt Hat"
         },
-        ("Çanakkale Otogar", "İskele Meydanı"): {
-            "line": "Ç-4 / Ç-9",
-            "name": "Yeni Otogar ➔ İskele",
-            "stops": ["Çanakkale Otogar", "Pirireis Caddesi", "Dörtyol", "Çarşı", "İskele Meydanı"],
-            "remaining": 3,
-            "time": "15 dk",
-            "next": "10 dk sonra"
+        "ÇOMÜ Terzioğlu Kampüsü": {
+            "nearest_stop": "Kampüs Ana Kapı",
+            "walk_time": "0 dakika (Kampüs İçi)",
+            "direction": "Ana kapıda inebilirsiniz.",
+            "line": "Kepez - Kampüs Hatları"
         },
-        ("İskele Meydanı", "17 Burda AVM"): {
-            "line": "Ç-3 / ÇT-3",
-            "name": "İskele ➔ 17 Burda AVM",
-            "stops": ["İskele Meydanı", "Çarşı", "Troya Caddesi", "Gazi Meclisi", "17 Burda AVM"],
-            "remaining": 3,
-            "time": "14 dk",
-            "next": "4 dk sonra"
+        "17 Burda AVM": {
+            "nearest_stop": "17 Burda AVM Önü",
+            "walk_time": "0 dakika (Kapıda İniş)",
+            "direction": "AVM'nin önündeki durakta inebilirsiniz.",
+            "line": "Ç-3 / Kepez Ringleri"
         },
-        ("Terzioğlu Kampüsü (Ana Kapı)", "ÇOMÜ Araştırma Hastanesi"): {
-            "line": "ÇT-1 / ÇT-3",
-            "name": "Kampüs ➔ Araştırma Hastanesi",
-            "stops": ["Terzioğlu Kampüsü (Ana Kapı)", "Teknik Bilimler MYO", "Yeni Adliye", "ÇOMÜ Araştırma Hastanesi"],
-            "remaining": 1,
-            "time": "5 dk",
-            "next": "2 dk sonra"
+        "Kepez Sahil / Ev": {
+            "nearest_stop": "Kepez Merkez Durakları",
+            "walk_time": "2-5 dakika",
+            "direction": "Kepez içi hatlarla evinize en yakın noktaya ulaşabilirsiniz.",
+            "line": "Kepez İçi Hatlar"
         }
     }
 
-    if st.button("En Uygun Otobüsü ve Durakları Göster", use_container_width=True):
-        if origin == destination:
-            st.warning("⚠️ Bulunduğun yer ile gideceğin yer aynı olamaz!")
-        else:
-            # Doğrudan eşleşme arama
-            route_key = (origin, destination)
-            data = routes_db.get(route_key)
-            
-            # Ters eşleşme veya genel mantık üretme
-            if not data:
-                # Varsayılan akıllı aktarmalı / standart şablon
-                data = {
-                    "line": "Ç-Genel Merkez Hattı",
-                    "name": f"{origin} ➔ {destination}",
-                    "stops": [origin, "Merkez Durak / Çarşı", "Aktarma Noktası", destination],
-                    "remaining": 2,
-                    "time": "15-20 dk",
-                    "next": "6 dk sonra"
-                }
+    destination_name = st.selectbox("Nereye varacaksınız? (Hedef Yer)", list(destinations_info.keys()))
 
-            st.success(f"Önerilen Hat: **{data['line']}**")
+    if st.button("Ulaşım ve Yürüyüş Rotasını Göster", use_container_width=True):
+        target = destinations_info[destination_name]
+        
+        st.success(f"🎯 Hedef: **{destination_name}**")
+        
+        # Bilgi Kutuları
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric(label="Önerilen En Yakın Durak", value=target["nearest_stop"])
+        with col2:
+            st.metric(label="Sonrası Yürüyüş", value=target["walk_time"])
             
-            m1, m2 = st.columns(2)
-            with m1:
-                st.metric(label="Kalan Durak", value=f"{data['remaining']} Durak")
-            with m2:
-                st.metric(label="Tahmini Süre", value=data['time'])
-                
-            st.info(f"⏰ Sıradaki Sefer: **{data['next']}**")
-            
-            st.markdown("#### 📍 Canlı Güzergah İlerlemesi")
-            for i, stop in enumerate(data["stops"]):
-                is_current = i == (len(data["stops"]) - data["remaining"])
-                if is_current:
-                    st.markdown(f"- **📍 {stop} (Otobüs Şuan Burada!)**")
-                elif i < (len(data["stops"]) - data["remaining"]):
-                    st.markdown(f"- ~~{stop}~~ *(Geçildi)*")
-                else:
-                    st.markdown(f"- {stop}")
+        st.info(f"🚌 Binmeniz Gereken Hat: **{target['line']}**")
+        
+        st.markdown("#### 🚶‍♂️ Yürüyüş ve Rota Rehberi")
+        st.markdown(f"> {target['direction']}")
+        
+        st.markdown("#### 📍 Güzergah Özeti")
+        st.markdown(f"- 🟢 Kalkış: **{origin}**")
+        st.markdown(f"- 🔵 İneceğiniz Yer: **{target['nearest_stop']}**")
+        st.markdown(f"- 🎯 Son Nokta: **{destination_name}**")
 
-# --- TAB 2: TÜM HATLAR REHBERİ ---
+# --- TAB 2: TÜM HATLAR LİSTESİ (KEPEZ DAHİL) ---
 with tab2:
-    st.markdown("### 📋 Çanakkale Merkez Hat Listesi")
+    st.markdown("### 📋 Kepez ve Merkez Hat Listesi")
     
     lines_info = {
+        "Kepez - Merkez (Sahil Yolu)": "Kepez Belde Kafe - Hamidiye - İskele Meydanı (Annenlerin en sık kullanacağı hat)",
+        "Kepez - Üniversite / Hastane": "Kepez - Troya Caddesi - Terzioğlu Kampüsü - Araştırma Hastanesi",
         "Ç-1 / Ç-2 (Mavi Hat)": "Esenler - Terzioğlu Kampüsü - İskele - Gazi Meclisi",
-        "Ç-3 (Kırmızı Hat)": "Esenler - Terzioğlu Kampüsü - İskele - SSK İstasyon",
+        "Ç-3 (Kırmızı Hat)": "Esenler - Terzioğlu Kampüsü - İskele - 17 Burda AVM",
         "Ç-4": "İskele - Çarşı - Salı Pazarı - Yeni Otogar",
-        "Ç-7": "Park 17 Evleri - Plaj Yolu - Esenler",
-        "Ç-8": "Nusrat Yurdu - Havaalanı - Üniversite",
-        "Ç-10": "Nusrat Öğrenci Yurdu - Terzioğlu Kampüsü",
         "ÇT-1 / ÇT-3": "Araştırma Hastanesi - İskele - Troya Caddesi - Kampüs",
     }
 
@@ -151,4 +115,4 @@ with tab2:
             st.write("Durum: Aktif Seferde ✅")
 
 st.divider()
-st.markdown("<p style='text-align: center; color: #94a3b8; font-size: 11px;'>Çanakkale Toplu Taşıma Bilgi Ağı</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #94a3b8; font-size: 11px;'>Çanakkale & Kepez Toplu Taşıma Bilgi Ağı</p>", unsafe_allow_html=True)
