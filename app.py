@@ -10,11 +10,11 @@ st.set_page_config(
 
 # Başlık
 st.markdown("<h2 style='text-align: center; color: #2563eb;'>🚌 Çanakkale Merkez Ulaşım Asistanı</h2>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #64748b; font-size: 13px;'>Tüm ortak durakları bağlayan canlı sefer paneli ve Google Maps rotaları</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #64748b; font-size: 13px;'>Tüm ara durakları kapsayan canlı sefer paneli ve Google Maps rotaları</p>", unsafe_allow_html=True)
 
 st.divider()
 
-# --- ÇANAKKALE MERKEZ TÜM HATLAR VE ORTAK ARA DURAKLAR VERİTABANI ---
+# --- TÜM HATLAR VE EKSİKSİZ ARA DURAKLAR VERİTABANI ---
 complete_central_lines = {
     "Ç-1 Mavi Hat (Esenler - Demircioğlu - Çarşı - İskele - Kampüs)": [
         "Esenler Mahallesi (Son Durak)", "Nazım Hikmet Parkı", "Ahmet Piriştina Caddesi",
@@ -77,20 +77,18 @@ all_unique_stops = sorted(list(set(stop for stops in complete_central_lines.valu
 # Sekmeler
 tab1, tab2, tab3 = st.tabs(["⏱️ Canlı Durak & Sefer", "📍 Akıllı Rota & Harita", "📋 Tüm Hatlar ve Eksiksiz Duraklar"])
 
-# --- TAB 1: CANLI DURAK VE SEFER BEKLEME PANELI ---
+# --- TAB 1: CANLI DURAK VE SEFER BEKLEME PANELI (YERLİŞİK STİL) ---
 with tab1:
     st.markdown("### 🚏 Canlı Durak Takip Paneli")
-    st.markdown("Merkezdeki duraklardan geçen **tüm otobüsleri** anlık olarak görüntüleyin:")
+    st.markdown("Beklediğiniz durağı seçerek oradan geçen tüm otobüsleri ve tahmini süreleri görün:")
 
     selected_stop = st.selectbox("Beklediğiniz Durağı Seçin:", all_unique_stops)
 
     st.markdown("---")
     st.markdown(f"#### 🚌 `{selected_stop}` Durağından Geçen Hatlar")
 
-    # Seçilen durağın geçtiği hatları bulma
     passing_lines = []
     for line_name, stops in complete_central_lines.items():
-        # Tam veya kısmi durak adı eşleşmesi
         if any(selected_stop.lower() == s.lower() or selected_stop.lower() in s.lower() for s in stops):
             passing_lines.append(line_name)
 
@@ -99,20 +97,14 @@ with tab1:
             sim_time = f"{(idx * 2 + 1)} dk sonra"
             sim_stops_left = idx
             
-            st.markdown(
-                f"""
-                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 12px 16px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <strong>{line}</strong><br>
-                        <span style="font-size: 12px; color: #64748b;">Tahmini Kalan Durak: <b>{sim_stops_left} Durak</b> | Durum: Aktif Seferde 🟢</span>
-                    </div>
-                    <div style="background-color: #dbeafe; color: #1e40af; padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 14px;">
-                        {sim_time}
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+            # Streamlit yerleşik container ve sütun yapısı (Her cihazda kusursuz görünür)
+            with st.container(border=True):
+                col_info, col_time = st.columns([3, 1])
+                with col_info:
+                    st.markdown(f"**{line}**")
+                    st.caption(f"Tahmini Kalan Durak: {sim_stops_left} Durak | Durum: Aktif Seferde 🟢")
+                with col_time:
+                    st.markdown(f"<div style='background-color: #dbeafe; color: #1e40af; padding: 8px; border-radius: 8px; text-align: center; font-weight: bold; font-size: 13px;'>{sim_time}</div>", unsafe_allow_html=True)
     else:
         st.info("Bu durak için eşleşen hat bulunamadı.")
 
